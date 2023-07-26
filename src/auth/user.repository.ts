@@ -37,8 +37,8 @@ export class UserRepository extends Repository<User> {
     authCredintialsDto: AuthCredintialsDto,
   ): Promise<string> {
     const { username, password } = authCredintialsDto;
-    const user = await this.findOne({
-      where: { username },
+    const user = await this.findOneBy({
+      username,
     });
     if (user && (await user.validatePassword(password))) {
       return user.username;
@@ -47,5 +47,10 @@ export class UserRepository extends Repository<User> {
   }
   private async hashPassword(password: string, salt: string): Promise<string> {
     return bcrypt.hash(password, salt);
+  }
+  async getMe(user): Promise<User> {
+    return await this.findOneBy({
+      username: user.username,
+    });
   }
 }

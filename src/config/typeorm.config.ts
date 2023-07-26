@@ -9,4 +9,5 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   database: 'taskmanagement',
   entities: [__dirname + '/../**/*.entity.{js,ts}'], // we use the entities defined before
   synchronize: true, // synchronize the database whenever we run the application
+  autoLoadEntities: true,
 };
