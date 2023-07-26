@@ -6,6 +6,7 @@ import { TaskRepository } from './tasks.repository';
 import { Task } from './tasks.entity';
 import { TaskStatus } from './tast-status.enum';
 import { User } from 'src/auth/user.entity';
+import { UserRepository } from 'src/auth/user.repository';
 // import { TaskStatus } from './tast-status.enum';
 
 @Injectable()
@@ -19,14 +20,20 @@ export class TasksService {
   //   }
   //   return tasks;
   // }
-  async getAllTasks(): Promise<Task[]> {
-    return this.taskRepository.find();
+  async getAllTasks(user: User): Promise<Task[]> {
+    const users = await User.findOne({ where: { username: user.username } });
+    let query = this.taskRepository.createQueryBuilder('task');
+    query = query.where('task.userId = :userId', { userId: users.id });
+    const tasks = await query.getMany();
+    return tasks;
   }
 
-  async getTaskById(id: number): Promise<Task> {
+  async getTaskById(id: number, user: User): Promise<Task> {
+    console.log(user);
     const found = await this.taskRepository.findOne({
       where: {
         id,
+        userId: user.id,
       },
     });
     console.log(found);
@@ -58,8 +65,11 @@ export class TasksService {
   //   return task;
   // }
 
-  async deleteTask(id: number): Promise<void> {
-    const result = await this.taskRepository.delete(id);
+  async deleteTask(id: number, user: User): Promise<void> {
+    const result = await this.taskRepository.delete({
+      id,
+      userId: user.id,
+    });
     console.log(result);
     if (result.affected === 0) {
       throw new NotFoundException(`Task with ID "${id}" not found`);
@@ -72,8 +82,12 @@ export class TasksService {
   //   }
   //   this.tasks = this.tasks.filter((task) => task.id !== id);
   // }
-  async updateTaskStatus(id: number, status: TaskStatus): Promise<Task> {
-    const task = await this.getTaskById(id);
+  async updateTaskStatus(
+    id: number,
+    status: TaskStatus,
+    user: User,
+  ): Promise<Task> {
+    const task = await this.getTaskById(id, user);
     task.status = status;
     task.save();
     return task;
