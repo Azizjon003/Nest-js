@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { User } from './user.entity';
 import { GetUser } from './get-user.decorater';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +31,7 @@ export class AuthController {
     return this.authService.signIn(authCredintialsDto);
   }
 
+  @ApiBearerAuth()
   @Get('/me')
   @UseGuards(AuthGuard('jwt'))
   getMe(@GetUser() user: User): Promise<User> {

@@ -19,7 +19,8 @@ import { TaskStatus } from './tast-status.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorater';
 import { User } from 'src/auth/user.entity';
-
+import { ApiBearerAuth } from '@nestjs/swagger';
+@ApiBearerAuth()
 @Controller('tasks')
 @UseGuards(AuthGuard('jwt'))
 export class TasksController {
